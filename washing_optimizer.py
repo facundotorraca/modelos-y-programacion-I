@@ -7,6 +7,7 @@ import numpy as np
 
 #-----------------------CONSTANTS---------------------------#
 INPUT_FILE = 'input.txt'
+OUTPUT_FILE = 'output.txt'
 COMPATIBLE = 0
 
 ATT_ID = 0
@@ -43,9 +44,37 @@ def _load_incs(w_data):
     incs = np.zeros((w_data['NA'], w_data['NA']))
 
     for inc in w_data['IC']:
-        incs[inc[0]][inc[1]] = 1
+        incs[inc[0]-1][inc[1]-1] = 1
 
     return incs
+
+def _print_washings(washings):
+    total_w_time = 0
+    for i in range(len(washings)):
+        w_time = 0
+        print('WASHING ' + str(i) + ': ', end='')
+        for attire in washings[i]:
+            print(str(attire[ATT_ID]) + ', ', end='')
+            w_time =  w_time if (w_time > attire[W_TIME]) else attire[W_TIME]
+
+        print('WASHING_TIME: ' + str(w_time))
+        total_w_time += w_time
+
+    print('\nTOTAL_WASHING_TIME: ' + str(total_w_time))
+
+def _print_output_file(filename, washings):
+    '''
+    Cada renglón tiene dos valores separados por un espacio, el primero
+    es el número de prenda, el según el número de lavado asignado.
+    ej: "1 5" Esto sería lavar la prenda "1" en el lavado "5"
+    '''
+    with open(filename, 'w') as output_file:
+        for i in range(len(washings)):
+            w_id = str(i + 1) #start at one the solution
+            for attire in washings[i]:
+                output_file.write(str(attire[ATT_ID]) + ' ' + w_id + '\n')
+
+    print('Solution saved successfully')
 #-----------------------------------------------------------#
 
 #-----------------------HEURISTIC---------------------------#
@@ -72,29 +101,10 @@ def next_slower_attire(attires):
     return slower_attire;
 
 def is_compatible_in_washing(new_attire, washing, incs):
-    new_id = new_attire[ATT_ID]
-
     for attire in washing:
-        id = attire[ATT_ID]
-
-        if incs[id][new_id] != COMPATIBLE:
+        if incs[attire[ATT_ID] - 1][new_attire[ATT_ID] - 1] != COMPATIBLE:
             return False
     return True
-
-def print_washings(washings):
-    total_w_time = 0
-    for i in range(len(washings)):
-        w_time = 0
-        print('WASHING ' + str(i) + ': ', end='')
-        for attire in washings[i]:
-            print(str(attire[ATT_ID]) + ', ', end='')
-            w_time += attire[W_TIME]
-
-        print('WASHING_TIME: ' + str(w_time))
-        total_w_time += w_time
-
-    print('\nTOTAL_WASHING_TIME: ' + str(total_w_time))
-
 
 def optimize_washing_time():
     w_data = _parse_data(INPUT_FILE)
@@ -121,6 +131,7 @@ def optimize_washing_time():
                 else:
                     w_id += 1 #Search for next washing
 
-    print_washings(washings)
+    _print_washings(washings)
+    _print_output_file(OUTPUT_FILE, washings)
 
 optimize_washing_time()
