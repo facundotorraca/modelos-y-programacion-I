@@ -6,7 +6,7 @@ import numpy as np
 # NI -> Number of incompatibilities
 
 #-----------------------CONSTANTS---------------------------#
-INPUT_FILE = 'input.txt'
+INPUT_FILE = 'segundo_problema.txt'
 OUTPUT_FILE = 'output.txt'
 COMPATIBLE = 0
 
@@ -43,8 +43,15 @@ def _parse_data(filename):
 def _load_incs(w_data):
     incs = np.zeros((w_data['NA'], w_data['NA']))
 
+    '''
+    The graph should be simmetrical.
+    If attire a is incompatible with b,
+    so, attire b is incom with a
+    '''
+
     for inc in w_data['IC']:
         incs[inc[0]-1][inc[1]-1] = 1
+        incs[inc[1]-1][inc[0]-1] = 1
 
     return incs
 
