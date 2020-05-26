@@ -1,12 +1,13 @@
 import numpy as np
+import heuristics as hr
 
-# AI -> Attires info [attire_ID | washingtime | washed | incomps | coef]
+# AI -> Attires info [attire_ID | washingtime | washed | incomps | coefic]
 # IC -> Incompatibilities [attire_ID_1 | attire_ID_2]
 # NA -> Number of attires
 # NI -> Number of incompatibilities
 
 #-----------------------CONSTANTS---------------------------#
-INPUT_FILE = 'segundo_problema.txt'
+INPUT_FILE = '../problems/segundo_problema.txt'
 OUTPUT_FILE = 'output.txt'
 COMPATIBLE = 0
 
@@ -20,7 +21,6 @@ INCOMP = 3
 COEFIC = 4
 #-----------------------------------------------------------#
 
-
 #---------------------LOAD/SAVE-FUNCTIONS--------------------#
 def _load_problem_definition(data, line_spt):
     data['NA'] = int(line_spt[2]);
@@ -32,7 +32,7 @@ def _load_incompatibility(data, line_spt):
     data['IC'].append([attire_ID_1, attire_ID_2])
 
 def _load_attire_info(data, line_spt):
-    coefic = 0 #calculated after loading all attires
+    coefic = 0 #calculated after
     incomps = 0 #calculated after loading all attires
     washed = False #becomes true after adding to a washing
     attire_ID = int(line_spt[1])
@@ -75,8 +75,6 @@ def _parse_data(filename):
 def _load_incs_matrix(data):
     incs = np.zeros((data['NA'], data['NA']))
 
-    print(data['NA'])
-
     '''
     The graph should be simmetrical.
     If attire a is incompatible with b,
@@ -104,7 +102,6 @@ def _load_incs_matrix(data):
         for j in range(data['NA']):
             if (incs[i][j] == 1):
                 incs[i][j] = data['AI'][i][INCOMP]
-
 
     return incs
 
@@ -137,7 +134,6 @@ def _print_output_file(filename, washings):
     print('Solution saved successfully')
 #-----------------------------------------------------------#
 
-
 #------------------AUXILIARY-FUNCTIONS----------------------#
 def all_attires_are_washed(attires):
     for attire in attires:
@@ -150,88 +146,18 @@ def is_compatible_in_washing(new_attire, washing, incs):
         if incs[attire[ATT_ID] - 1][new_attire[ATT_ID] - 1] != COMPATIBLE:
             return False
     return True
-
-def get_more_conflictive(attire_1, attire_2):
-    if (attire_1[INCOMP] > attire_2[INCOMP]):
-        return attire_1;
-    return attire_2;
-
-def calculate_coeficients(attires):
-    for attire in attires:
-        attire[COEFIC] = ((attire[W_TIME]*W_WEIGHT) + (attire[INCOMP]*I_WEIGTH))**2
 #-----------------------------------------------------------#
-
-
-#-----------------------HEURISTICS--------------------------#
-def next_slower_attire(attires):
-    slower_attire = None
-
-    #Find the first not washed attire
-    for attire in attires:
-        if not attire[WASHED]:
-            slower_attire = attire
-            break
-
-    '''
-    the conflictives attires (more incompatibilities)
-    need to be add at first, so we have a higher prob-
-    bability of adding them into a wahing and not on a
-    single attire wash
-    '''
-
-    for attire in attires:
-        if not attire[WASHED]:
-            if attire[W_TIME] == slower_attire[W_TIME]:
-                slower_attire = get_more_conflictive(attire, slower_attire)
-            elif attire[W_TIME] > slower_attire[W_TIME]:
-                slower_attire = attire
-
-    return slower_attire;
-
-def next_more_conflictive_attire(attires):
-    conflictive_attire = None
-
-    #Find the first not washed attire
-    for attire in attires:
-        if not attire[WASHED]:
-            conflictive_attire = attire
-            break
-
-    for attire in attires:
-        if not attire[WASHED]:
-            if attire[INCOMP] >= conflictive_attire[INCOMP]:
-                conflictive_attire = attire
-
-    return conflictive_attire;
-
-def next_coef_attire(attires):
-    curr_attire = None
-
-    #Find the first not washed attire
-    for attire in attires:
-        if not attire[WASHED]:
-            curr_attire = attire
-            break
-
-    for attire in attires:
-        if not attire[WASHED]:
-            if attire[COEFIC] >= curr_attire[COEFIC]:
-                curr_attire = attire
-
-    return curr_attire;
-#-----------------------------------------------------------#
-
 
 def optimize_washing_time():
     data = _parse_data(INPUT_FILE)
     incs = _load_incs_matrix(data)
 
-    #calculate_coeficients(data['AI'])
+    #hr.calculate_coeficients(data['AI'], W_WEIGHT, I_WEIGTH)
 
     washings = []
 
     while not all_attires_are_washed(data['AI']):
-        attire = next_slower_attire(data['AI'])
+        attire = hr.next_more_conflictive_attire(data['AI'])
 
         w_id = 0
         #Add the attire in the posible washing
