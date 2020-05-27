@@ -1,7 +1,8 @@
+import lwbd as lb
 import numpy as np
 import dsatur as ds
 
-# AI -> Attires info [attire_ID | washingtime | dcolor | washed]
+# AI -> Attires info [attire_ID | washingtime | ds_clr | washed | incomp]
 # IC -> Incompatibilities [attire_ID_1 | attire_ID_2]
 # NI -> Number of incompatibilities
 # NA -> Number of attires
@@ -11,13 +12,11 @@ INPUT_FILE = '../problems/segundo_problema.txt'
 OUTPUT_FILE = 'output.txt'
 COMPATIBLE = 0
 
-W_WEIGHT = 5
-I_WEIGTH = 0
-
 ATT_ID = 0
 W_TIME = 1
 DS_CLR = 2
 WASHED = 3
+INCOMP = 4
 #-----------------------------------------------------------#
 
 #---------------------LOAD/SAVE-FUNCTIONS--------------------#
@@ -32,10 +31,11 @@ def _load_incompatibility(data, line_spt):
 
 def _load_attire_info(data, line_spt):
     ds_clr = 0 #dsatur color (asignated after executing DSatur algorithm)
+    incomp = 0 #loades after loading incs matrix
     washed = False
     attire_ID = int(line_spt[1])
     washingtime = int(line_spt[2])
-    data["AI"].append([attire_ID, washingtime, ds_clr, washed])
+    data["AI"].append([attire_ID, washingtime, ds_clr, washed, incomp])
 
 def _parse_data(filename):
     data = {'NI': 0, 'NA': 0, 'IC':[], 'AI':[]};
@@ -85,6 +85,11 @@ def _load_incs_matrix(data):
 
     return incs
 
+def _calculate_incomps(data, incs):
+    for att in data['AI']:
+        for i in range(data['NA']):
+            att[INCOMP] += incs[att[ATT_ID]-1][i]
+
 def _print_washings(washings):
     total_w_time = 0
     for i in range(len(washings)):
@@ -98,6 +103,11 @@ def _print_washings(washings):
         total_w_time += w_time
 
     print('\nTOTAL_WASHING_TIME: ' + str(total_w_time))
+
+def _print_lower_bounds(lower_bound):
+    print("#-----------------------------#")
+    print("LOWER BOUND:" + str(lower_bound))
+    print("#-----------------------------#")
 
 def _print_output_file(filename, washings):
     '''
@@ -122,10 +132,7 @@ def all_attires_are_washed(attires):
     return True
 #-----------------------------------------------------------#
 
-def optimize_washing_time():
-    data = _parse_data(INPUT_FILE)
-    incs = _load_incs_matrix(data)
-
+def find_solution(data, incs):
     wid = 0
     washings = []
 
@@ -152,8 +159,22 @@ def optimize_washing_time():
                 else:
                     wid += 1
 
+    return washings
+
+def find_lower_bound(data, incs):
+    return lb.append_slowers_method(data['AI'], incs)
+
+def optimize_washing_time():
+    data = _parse_data(INPUT_FILE)
+    incs = _load_incs_matrix(data)
+    _calculate_incomps(data, incs)
+
+    washings = find_solution(data, incs)
+    lower_bound = find_lower_bound(data, incs)
 
     _print_washings(washings)
+    _print_lower_bounds(lower_bound)
+
     _print_output_file(OUTPUT_FILE, washings)
 
 optimize_washing_time()
