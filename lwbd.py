@@ -48,6 +48,7 @@ def _is_incomp_in_selection(new_att, selection, incs):
     return True
 #-----------------------------------------------------------#
 
+#----------------------LOWER-BOUND--------------------------#
 def append_slowers_method(attires, incs):
     for attire in attires:
         attire[VSITED] = False
@@ -67,3 +68,4 @@ def append_slowers_method(attires, incs):
         attire[VSITED] = False
 
     return lower_bound
+#-----------------------------------------------------------#

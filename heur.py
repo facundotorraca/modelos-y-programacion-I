@@ -3,9 +3,9 @@ import numpy as np
 #-----------------------CONSTANTS---------------------------#
 ATT_ID = 0
 W_TIME = 1
-WASHED = 2
-INCOMP = 3
-COEFIC = 4
+DS_CLR = 2
+WASHED = 3
+INCOMP = 4
 #-----------------------------------------------------------#
 
 #------------------AUXILIARY-FUNCTIONS----------------------#
@@ -72,24 +72,4 @@ def next_less_conflictive_attire(attires):
                 less_conflictive_attire = attire
 
     return less_conflictive_attire;
-
-def next_coef_attire(attires):
-    curr_attire = None
-
-    #Find the first not washed attire
-    for attire in attires:
-        if not attire[WASHED]:
-            curr_attire = attire
-            break
-
-    for attire in attires:
-        if not attire[WASHED]:
-            if attire[COEFIC] >= curr_attire[COEFIC]:
-                curr_attire = attire
-
-    return curr_attire;
-
-def calculate_coeficients(attires, w_weight, i_weight):
-    for attire in attires:
-        attire[COEFIC] = ((attire[W_TIME]*w_weight) + (attire[INCOMP]*i_weight))**2
 #-----------------------------------------------------------#
