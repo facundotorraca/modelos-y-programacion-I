@@ -13,6 +13,37 @@ CONNECTED = 1
 #-----------------------------------------------------------#
 
 #------------------AUXILIARY-FUNCTIONS----------------------#
+def __get_least_saturating_color(G, V, v, colors):
+    vertex = v[VERTEX]
+
+    n = len(V)
+    color_saturations = []
+
+    for c in colors:
+        c_sat = 0
+        for i in range(n):
+            if G[vertex][i] == CONNECTED and i != vertex:
+                if __vertex_can_use_color(G, V, V[i], c):
+                    c_sat += 1
+        color_saturations.append(c_sat)
+
+    print(color_saturations)
+
+    c_idx = color_saturations.index(min(color_saturations))
+    return colors[c_idx]
+
+def __vertex_can_use_color(G, V, v, c):
+    vertex = v[VERTEX]
+
+    n = len(V)
+
+    for i in range(n):
+        if G[vertex][i] == CONNECTED and i != vertex:
+            if V[i][DS_CLR] == c:
+                return False
+
+    return True
+
 def __next_most_saturated_vertex(G, V):
     found = False
     most_saturated_v = None
@@ -79,25 +110,35 @@ def _next_vertex(G, V):
 
     return v
 
-def _color_vertex(G, V, v):
+def _color_vertex(G, V, v, hc):
     v[VSITED] = True
 
     n = len(V)
+    vertex = v[VERTEX]
 
-    color = 1
-    colored = False
+    posible_colors = []
+    is_posible_color = False
 
-    while not colored:
-        colored = True
+    for color in range(1, hc + 1):
+        is_posible_color = True
         for i in range(n):
-            vertex = int(v[VERTEX])
             if G[vertex][i] == CONNECTED and vertex != i:
                 if V[i][DS_CLR] == color:
-                    colored = False
-                    color += 1
+                    is_posible_color = False
                     break
+        if is_posible_color:
+            posible_colors.append(color)
+
+    total_colors = len(posible_colors)
+
+    if total_colors == 0:
+        v[DS_CLR] = hc + 1
+        return hc + 1
+
+    color = __get_least_saturating_color(G, V, v, posible_colors);
 
     v[DS_CLR] = color
+    return color
 
 def _all_visited(V):
     for v in V:
@@ -107,13 +148,17 @@ def _all_visited(V):
 
 def dsatur(G, n):
     V = []
+    hc = 1 #highest color
 
     __init_vertices(G, V, n)
+
 
     while not _all_visited(V):
         __update_degree_saturation(G, V)
         v = _next_vertex(G, V)
-        _color_vertex(G, V, v)
+        c = _color_vertex(G, V, v, hc)
+        if c > hc:
+            hc = c
 
     return V
 #-----------------------------------------------------------#

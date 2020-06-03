@@ -107,7 +107,7 @@ def is_compatible_by_color(new_attire, washing):
     All the attires in the washing has the same color
     so we take the color from the first attire.
     '''
-    
+
     return new_attire[DS_CLR] == color_first_attire
 
 def is_compatible_by_attire(new_attire, washing, incs):
