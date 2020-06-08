@@ -3,6 +3,7 @@ import lwbd as lb
 import print as pr
 import numpy as np
 import dsatur as ds
+import btrack as bt
 
 # AI -> Attires info [attire_ID | washingtime | ds_clr | washed | incomp]
 # IC -> Incompatibilities [attire_ID_1 | attire_ID_2]
@@ -22,26 +23,6 @@ INCOMP = 4
 #-----------------------------------------------------------#
 
 #---------------------LOAD/SAVE-FUNCTION--------------------#
-def load_incs_matrix(data):
-    incs = np.zeros((data['NA'], data['NA']))
-
-    '''
-    The graph should be simmetrical.
-    If attire a is incompatible with b,
-    so, attire b is incom with a
-    '''
-
-    for inc in data['IC']:
-        incs[inc[0]-1][inc[1]-1] = 1
-        incs[inc[1]-1][inc[0]-1] = 1
-
-    return incs
-
-def calculate_incomps(data, incs):
-    for att in data['AI']:
-        for i in range(data['NA']):
-            att[INCOMP] += incs[att[ATT_ID]-1][i]
-
 def _load_problem_definition(data, line_spt):
     data['NA'] = int(line_spt[2]);
     data['NI'] = int(line_spt[3]);
@@ -91,6 +72,26 @@ def parse_data(filename):
                 _load_attire_info(data, line_spt)
 
     return data
+
+def load_incs_matrix(data):
+    incs = np.zeros((data['NA'], data['NA']))
+
+    '''
+    The graph should be simmetrical.
+    If attire a is incompatible with b,
+    so, attire b is incom with a
+    '''
+
+    for inc in data['IC']:
+        incs[inc[0]-1][inc[1]-1] = 1
+        incs[inc[1]-1][inc[0]-1] = 1
+
+    return incs
+
+def calculate_incomps(data, incs):
+    for att in data['AI']:
+        for i in range(data['NA']):
+            att[INCOMP] += incs[att[ATT_ID]-1][i]
 #-----------------------------------------------------------#
 
 #------------------AUXILIARY-FUNCTIONS----------------------#
@@ -118,29 +119,6 @@ def is_compatible_by_attire(new_attire, washing, incs):
 #-----------------------------------------------------------#
 
 #--------------------------WOPS-----------------------------#
-def find_solution_greedy(data, incs):
-    wid = 0
-    washings = []
-
-    while not all_attires_are_washed(data['AI']):
-        attire = hr.next_slower_attire(data['AI'])
-
-        wid = 0
-        #Add the attire in the posible washing
-        while not attire[WASHED]:
-            if wid >= len(washings):
-                #creates a new washing with the attire
-                washings.append([attire])
-                attire[WASHED] = True
-            else:
-                if is_compatible_by_attire(attire, washings[wid], incs):
-                    washings[wid].append(attire)
-                    attire[WASHED] = True
-                else:
-                    wid += 1
-
-    return washings
-
 def find_solution_dsatur(data, incs):
     wid = 0
     washings = []
@@ -170,20 +148,43 @@ def find_solution_dsatur(data, incs):
 
     return washings
 
+def find_solution_greedy(data, incs):
+    wid = 0
+    washings = []
+
+    while not all_attires_are_washed(data['AI']):
+        attire = hr.next_slower_attire(data['AI'])
+
+        wid = 0
+        #Add the attire in the posible washing
+        while not attire[WASHED]:
+            if wid >= len(washings):
+                #creates a new washing with the attire
+                washings.append([attire])
+                attire[WASHED] = True
+            else:
+                if is_compatible_by_attire(attire, washings[wid], incs):
+                    washings[wid].append(attire)
+                    attire[WASHED] = True
+                else:
+                    wid += 1
+
+    return washings
+
 def find_lower_bound(data, incs):
-    return lb.append_slowers_method(data['AI'], incs)
+    return lb.fast_mwcp_method(data['AI'], incs)
 
 def optimize_washing_time():
     data = parse_data(INPUT_FILE)
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
 
-    washings = find_solution_dsatur(data, incs)
+    #washings = find_solution_dsatur(data, incs)
     lower_bound = find_lower_bound(data, incs)
 
-    pr.print_washings(washings)
+    #pr.print_washings(washings)
     pr.print_lower_bounds(lower_bound)
-    pr.print_output_file(OUTPUT_FILE, washings)
+    #pr.print_output_file(OUTPUT_FILE, washings)
 #-----------------------------------------------------------#
 
 optimize_washing_time()

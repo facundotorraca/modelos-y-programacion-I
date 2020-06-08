@@ -27,8 +27,6 @@ def __get_least_saturating_color(G, V, v, colors):
                     c_sat += 1
         color_saturations.append(c_sat)
 
-    print(color_saturations)
-
     c_idx = color_saturations.index(min(color_saturations))
     return colors[c_idx]
 
