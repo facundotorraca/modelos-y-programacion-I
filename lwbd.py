@@ -73,6 +73,21 @@ def _is_incomp_in_selection(new_att, selection, incs):
 #-----------------------------------------------------------#
 
 #----------------------LOWER-BOUND--------------------------#
+def fast_mwcp_method(attires, incs):
+    W = []
+
+    for attire in attires:
+        W.append(attire[W_TIME])
+
+    C = mwcp.fast_w_clq(incs, W, 10000)
+
+    lower_bound = 0
+
+    for v in C:
+        lower_bound += attires[v[0]][W_TIME]
+
+    return lower_bound
+
 def append_slowers_method(attires, incs):
     for attire in attires:
         attire[VSITED] = False
@@ -110,21 +125,6 @@ def append_more_conflictive_method(attires, incs):
 
     for attire in attires:
         attire[VSITED] = False
-
-    return lower_bound
-
-def fast_mwcp_method(attires, incs):
-    W = []
-
-    for attire in attires:
-        W.append(attire[W_TIME])
-
-    C = mwcp.fast_w_clq(incs, W, 10000)
-
-    lower_bound = 0
-
-    for v in C:
-        lower_bound += attires[v[0]][W_TIME]
 
     return lower_bound
 #-----------------------------------------------------------#

@@ -188,6 +188,14 @@ def _reduce_graph(G, V, C):
     return G
 
 def _adjust_BMS_number(G, k):
+    '''
+    We start from a small k value (K0), so that the algorithm works fast.
+    Whenever start_set becomes empty, which means we do not find a better
+    clique with this k value, we adjust k by increasing it as k := 2k, to
+    make the algorithm construct cliques in a greedier way. Also, when k
+    exceeds a predefined maximum value len(G), it is reset to k := ++k0.
+    '''
+
     new_k = 2 * k
 
     if new_k > len(G):
@@ -246,7 +254,7 @@ def fast_w_clq(G, W, co):
 
         #creates a new clique
         C = [v]
-        
+
         #get all the canditates to be part of the clique
         candidates = __get_all_neighbors(G, V, v)
 
