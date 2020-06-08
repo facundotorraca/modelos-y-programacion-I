@@ -227,7 +227,10 @@ def fast_w_clq(G, W, co):
     weight, n is the number of vetices and co, that is the cutoff iterations.
     If the exact solution is not found until co_time, an approximated
     solution is returned. co_time = -1 searchs until the exact solution.
+    Returns a set of vertex that compound the most heavy clique found. The set
+    is a tuple [(VERTEX, WEIGTH)]. Vertex go from 0 to len(G)-1.
     '''
+
     G_copy = G.copy()
 
     V = __init_vertices(W)

@@ -3,8 +3,8 @@ import random as rd
 
 #-----------------------CONSTANTS---------------------------#
 VERTEX = 0
-DEGREE = 1
-DS_CLR = 2
+DS_CLR = 1
+DEGREE = 2
 DG_SAT = 3
 VSITED = 4
 
@@ -97,18 +97,23 @@ def __init_vertices(G, V, n):
         V[i][VSITED] = False
         for j in range(n):
             V[i][DEGREE] += int(G[i][j])
+
+def __format_answer(V):
+    for v in V:
+        #let only vertex and dsatur color
+        v = v[:2]
 #-----------------------------------------------------------#
 
-#--------------------------DSATUR---------------------------#
-def _next_vertex(G, V):
-    v, found = __next_most_saturated_vertex(G, V)
-
-    if not found:
-        v = __next_higher_degree_vertex(G, V)
-
-    return v
-
+#-----------------------DSATUR-FUNCTIONS--------------------#
 def _color_vertex(G, V, v, hc):
+    '''
+    Recieves a graph G as a matrix with the connections between vertices
+    (1 is connected, 0 is not connected), a set of vertices V with all
+    the informaction about each vertex, a vertex v from V that is going to
+    be coloresand the highest color used until that time (hc). Color the
+    vertex v in place and return the color used.
+    '''
+
     v[VSITED] = True
 
     n = len(V)
@@ -138,13 +143,37 @@ def _color_vertex(G, V, v, hc):
     v[DS_CLR] = color
     return color
 
+def _next_vertex(G, V):
+    '''
+    Recieves a graph G as a matrix with the connections between vertices
+    (1 is connected, 0 is not connected) and a set of vertices V with all
+    the informaction about each vertex. Returns the next vertex v from V
+    to be colored.
+    '''
+
+    v, found = __next_most_saturated_vertex(G, V)
+
+    if not found:
+        v = __next_higher_degree_vertex(G, V)
+
+    return v
+
 def _all_visited(V):
     for v in V:
         if not v[VSITED]:
             return False
     return True
+#-----------------------------------------------------------#
 
+#--------------------------DSATUR---------------------------#
 def dsatur(G, n):
+    '''
+    Recieves a graph G as a matrix with the connections between vertices
+    (1 is connected, 0 is not connected). Returns a set with all vertex
+    with colors. The set hast a tuple format: [(VERTEX, COLOR)].
+    Vertex go from 0 to len(G) - 1.
+    '''
+
     V = []
     hc = 1 #highest color
 
@@ -157,6 +186,8 @@ def dsatur(G, n):
         c = _color_vertex(G, V, v, hc)
         if c > hc:
             hc = c
+
+    __format_answer(V)
 
     return V
 #-----------------------------------------------------------#

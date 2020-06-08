@@ -84,7 +84,7 @@ def load_incs_matrix(data):
 def calculate_incomps(data, incs):
     for att in data['AI']:
         for i in range(data['NA']):
-            att[hr.INCOMP] += incs[att[hrATT_ID]-1][i]
+            att[hr.INCOMP] += incs[att[hr.ATT_ID]-1][i]
 #-----------------------------------------------------------#
 
 #--------------------------WOPS-----------------------------#
