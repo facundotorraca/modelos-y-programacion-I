@@ -106,12 +106,12 @@ def optimize_washing_time():
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
 
-    #washings, sl_time = find_solution_greedy(data, incs)
+    washings, sl_time = find_solution_greedy(data, incs)
     lower_bound, lw_time = find_lower_bound(data, incs)
 
-    #pr.print_washings(washings, sl_time)
+    pr.print_washings(washings, sl_time)
     pr.print_lower_bounds(lower_bound, lw_time)
-    #pr.print_output_file(OUTPUT_FILE, washings)
+    pr.print_output_file(OUTPUT_FILE, washings)
 #-----------------------------------------------------------#
 
 optimize_washing_time()
