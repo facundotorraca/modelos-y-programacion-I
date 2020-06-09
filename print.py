@@ -1,3 +1,4 @@
+import time as tm
 import numpy as np
 
 #-----------------------CONSTANTS---------------------------#
@@ -16,7 +17,7 @@ UNDERLINE = '\033[4m'
 #-----------------------------------------------------------#
 
 #----------------------OUTPUT-FUNCTIONS---------------------#
-def print_washings(washings):
+def print_washings(washings, exec_time):
     print(f"{HEADER}{BOLD}#--------------------------WASHINGS---------------------------#{ENDC}")
     total_w_time = 0
     for i in range(len(washings)):
@@ -34,12 +35,23 @@ def print_washings(washings):
     print(f"{HEADER}{BOLD}#-----------------------WASHING-TIME--------------------------#{ENDC}")
     print('TOTAL_WASHING_TIME: ' + str(total_w_time))
     print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
+
+    print("\n")
+    print(f"{HEADER}{BOLD}#-----------------SOLUTION-EXECUTION-TIME---------------------#{ENDC}")
+    print('SOLUTION EXECUTION TIME: ' +  str(exec_time*1000))
+    print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
     print("\n")
 
-def print_lower_bounds(lower_bound):
+def print_lower_bounds(lower_bound, exec_time):
     print(f"{HEADER}{BOLD}#-------------------------LOWER-BOUND-------------------------#{ENDC}")
     print("LOWER BOUND:" + str(lower_bound))
     print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
+
+    print("\n")
+    print(f"{HEADER}{BOLD}#----------------LOWER-BOUND-EXECUTION-TIME-------------------#{ENDC}")
+    print('LOWER BOUND EXECUTION TIME: ' +  str(exec_time*1000))
+    print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
+    print("\n")
 
 def print_output_file(filename, washings):
     '''

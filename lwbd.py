@@ -79,7 +79,7 @@ def fast_mwcp_method(attires, incs):
     for attire in attires:
         W.append(attire[W_TIME])
 
-    MWCP_ITERATIONS = 50000
+    MWCP_ITERATIONS = 20000
 
     # Approx. most heavy clique
     C = mwcp.fast_w_clq(incs, W, MWCP_ITERATIONS)

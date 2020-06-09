@@ -1,5 +1,6 @@
 import heur as hr
 import lwbd as lb
+import time as tm
 import print as pr
 import numpy as np
 
@@ -9,7 +10,7 @@ import numpy as np
 # NA -> Number of attires
 
 #-----------------------CONSTANTS---------------------------#
-INPUT_FILE = 'problems/primer_problema.txt'
+INPUT_FILE = 'problems/segundo_problema.txt'
 OUTPUT_FILE = 'output.txt'
 #-----------------------------------------------------------#
 
@@ -89,22 +90,28 @@ def calculate_incomps(data, incs):
 
 #--------------------------WOPS-----------------------------#
 def find_solution_greedy(data, incs):
-    return hr.dsatur_method(data, incs)
+    start_time = tm.time()
+    washings = hr.dsatur_method(data, incs)
+    exec_time = tm.time() - start_time
+    return washings, exec_time
 
 def find_lower_bound(data, incs):
-    return lb.fast_mwcp_method(data['AI'], incs)
+    start_time = tm.time()
+    lower_bound = lb.fast_mwcp_method(data['AI'], incs)
+    exec_time = tm.time() - start_time
+    return lower_bound, exec_time
 
 def optimize_washing_time():
     data = parse_data(INPUT_FILE)
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
 
-    washings = find_solution_greedy(data, incs)
-    lower_bound = find_lower_bound(data, incs)
+    #washings, sl_time = find_solution_greedy(data, incs)
+    lower_bound, lw_time = find_lower_bound(data, incs)
 
-    pr.print_washings(washings)
-    pr.print_lower_bounds(lower_bound)
-    pr.print_output_file(OUTPUT_FILE, washings)
+    #pr.print_washings(washings, sl_time)
+    pr.print_lower_bounds(lower_bound, lw_time)
+    #pr.print_output_file(OUTPUT_FILE, washings)
 #-----------------------------------------------------------#
 
 optimize_washing_time()

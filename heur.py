@@ -1,3 +1,5 @@
+import mwcp
+import copy as cp
 import numpy as np
 import dsatur as ds
 
@@ -100,6 +102,51 @@ def _next_less_conflictive_attire(attires):
 #-----------------------------------------------------------#
 
 #------------------SOLVING-METHODS--------------------------#
+def mwcp_method(data, incs):
+    wid = 0
+    washings = []
+
+    # fast_w_clq modifies graph son we pass a copy
+    incs_copy = cp.deepcopy(incs)
+
+    W = [] #weights
+
+    for attire in data['AI']:
+        W.append(attire[W_TIME])
+
+    MWCP_ITERATIONS = 10000
+
+    # Approx. most heavy clique
+    C = mwcp.fast_w_clq(incs_copy, W, MWCP_ITERATIONS)
+
+    # first we create n washes, where n is the len
+    # of the most heavy clique found.
+    for v in C:
+        washings.append([data['AI'][v[mwcp.VERTEX]]])
+        data['AI'][v[mwcp.VERTEX]][WASHED] = True
+
+    # second we try to add the remainings attires
+    # on the created washings. If not posible, a new
+    # washing is created.
+    while not __all_attires_are_washed(data['AI']):
+        attire = _next_slower_attire(data['AI'])
+
+        wid = 0
+        #Add the attire in the posible washing
+        while not attire[WASHED]:
+            if wid >= len(washings):
+                #creates a new washing with the attire
+                washings.append([attire])
+                attire[WASHED] = True
+            else:
+                if __is_compatible_by_attire(attire, washings[wid], incs):
+                    washings[wid].append(attire)
+                    attire[WASHED] = True
+                else:
+                    wid += 1
+
+    return washings
+
 def dsatur_method(data, incs):
     wid = 0
     washings = []
@@ -175,7 +222,7 @@ def next_more_conflictive_method(data, incs):
 
     return washings
 
-def next_less_conflictive_attire(data, incs):
+def next_less_conflictive_method(data, incs):
     wid = 0
     washings = []
 

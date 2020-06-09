@@ -56,6 +56,15 @@ def __is_empty_graph(G):
 
     return True
 
+def __get_most_heavy(V):
+    most_heavy = V[0]
+
+    for v in V:
+        if v[WEIGHT] > most_heavy[WEIGHT]:
+            most_heavy = v
+
+    return most_heavy
+
 def __get_all_neighbors(G, V, v):
     '''
     Recieve a G with as a matrix with the connections between vertices
@@ -101,73 +110,14 @@ def __greater_bval_vertex(G, V, candidates):
 #-----------------------------------------------------------#
 
 #------------------FAST-WCLQ-FUNCTIONS----------------------#
-def _get_clique_upper_bound(G, V, v):
-    '''
-    Recieve a G with as a matrix with the connections between vertices
-    (1 is connected, 0 is not connected), a V with all the vertex
-    information (ID, weight) and a vertex v. Returns an upper bound on
-    the weight of any clique containing v is an integer.
-    '''
-
-    N_v = __get_all_neighbors(G, V, v)
-
-    # the trivial upper bound is a clique
-    # with all v neighbors
-    ub_v = _get_clique_weight(N_v, V)
-
-    return ub_v
-
-def _get_add_vertex(G, V, candidates, k):
-    '''
-    Recieve a G with as a matrix with the connections between vertices
-    (1 is connected, 0 is not connected), a V with all the vertex
-    information (ID, weight), a set of candidates and a number k.
-    Returns the next vertex to be added to the clique.
-    '''
-
-    if len(candidates) < k:
-        # vertex is removed from candidates inside
-        return __greater_bval_vertex(G, V, candidates)
-
-    u_idx = rd.randint(0,len(candidates) - 1)
-    u = candidates[u_idx]
-
-    bval = _get_b(G, V, candidates, u)
-
-    for i in range(k):
-
-        v_idx = rd.randint(0,len(candidates) - 1)
-        v = candidates[v_idx]
-
-        if _get_b(G, V, candidates, v) > bval:
-            u = v
-            u_idx = v_idx
-
-    #remove vertex from candidates
-    candidates.pop(u_idx)
-
-    return u
-
-def _get_clique_weight(C, V):
-    '''
-    Recieve V with all the vertex information (ID, weight),
-    and a clique C. Returns the C weight
-    '''
-
-    w = 0
-
-    for v in C:
-        w += V[v[VERTEX]][WEIGHT]
-
-    return w
-
 def _reduce_graph(G, V, C):
     C_w = _get_clique_weight(C, V)
 
     rm_queue = deque()
 
     for v in V:
-        if _get_clique_upper_bound(G, V, v) <= C_w:
+        ubv_0, ubv_1 = _get_clique_upper_bound(G, V, v)
+        if ubv_0 <= C_w or ubv_1 <= C_w:
             rm_queue.append(v)
 
     while len(rm_queue) > 0:
@@ -182,10 +132,24 @@ def _reduce_graph(G, V, C):
         V[v[VERTEX]][REMVED] = True
 
         for u in N_v:
-            if _get_clique_upper_bound(G, V, u) <= C_w:
+            ubv_0, ubv_1 = _get_clique_upper_bound(G, V, u)
+            if  ubv_0 <= C_w or ubv_1 <= C_w:
                 rm_queue.append(u)
 
     return G
+
+def _get_clique_weight(C, V):
+    '''
+    Recieve V with all the vertex information (ID, weight),
+    and a clique C. Returns the C weight
+    '''
+
+    w = 0
+
+    for v in C:
+        w += V[v[VERTEX]][WEIGHT]
+
+    return w
 
 def _adjust_BMS_number(G, k):
     '''
@@ -217,6 +181,61 @@ def _get_b(G, V, candidates, v):
     aux = __intersect(candidates, N_v)
 
     return V[v[VERTEX]][WEIGHT] + _get_clique_weight(aux, V) / 2
+
+def _get_clique_upper_bound(G, V, v):
+    '''
+    Recieve a G with as a matrix with the connections between vertices
+    (1 is connected, 0 is not connected), a V with all the vertex
+    information (ID, weight) and a vertex v. Returns an upper bound on
+    the weight of any clique containing v is an integer.
+    '''
+
+    N_v = __get_all_neighbors(G, V, v)
+    # the trivial upper bound is a clique
+    # with all v neighbors
+    ub_v_0 = _get_clique_weight(N_v, V)
+
+    if len(N_v) == 0:
+        return ub_v_0, 0
+
+    u = __get_most_heavy(N_v)
+    N_u = __get_all_neighbors(G, V, u)
+
+    ub_v_1a = _get_clique_weight(N_v, V) - u[WEIGHT]
+    ub_v_1b = v[WEIGHT] + u[WEIGHT] + _get_clique_weight(__intersect(N_v, N_u), V)
+
+    return ub_v_0, max(ub_v_1a, ub_v_1b)
+
+def _get_add_vertex(G, V, candidates, k):
+    '''
+    Recieve a G with as a matrix with the connections between vertices
+    (1 is connected, 0 is not connected), a V with all the vertex
+    information (ID, weight), a set of candidates and a number k.
+    Returns the next vertex to be added to the clique.
+    '''
+
+    if len(candidates) < k:
+        # vertex is removed from candidates inside
+        return __greater_bval_vertex(G, V, candidates)
+
+    u_idx = rd.randint(0,len(candidates) - 1)
+    u = candidates[u_idx]
+
+    bval = _get_b(G, V, candidates, u)
+
+    for i in range(k):
+
+        v_idx = rd.randint(0,len(candidates) - 1)
+        v = candidates[v_idx]
+
+        if _get_b(G, V, candidates, v) > bval:
+            u = v
+            u_idx = v_idx
+
+    #remove vertex from candidates
+    candidates.pop(u_idx)
+
+    return u
 #-----------------------------------------------------------#
 
 #-------------------------FAST-WCLQ-------------------------#
@@ -231,7 +250,7 @@ def fast_w_clq(G, W, co):
     is a tuple [(VERTEX, WEIGTH)]. Vertex go from 0 to len(G)-1.
     '''
 
-    G_copy = G.copy()
+    G_copy = np.copy(G)
 
     V = __init_vertices(W)
     #now V has all vertex in a pair [VERTEX, WEIGHT]
@@ -247,7 +266,7 @@ def fast_w_clq(G, W, co):
     while iter < co:
 
         if len(start_V_set) == 0:
-            G = G_copy.copy()
+            G = np.copy(G_copy)
             V = __init_vertices(W)
             k = _adjust_BMS_number(G, k)
             start_V_set = __init_start_set(V)
@@ -289,7 +308,7 @@ def fast_w_clq(G, W, co):
             start_V_set = __init_start_set(V)
 
             if __is_empty_graph(G):
-                return best_C   #exact solution
+                return best_C #exact solution
 
         iter += 1
 

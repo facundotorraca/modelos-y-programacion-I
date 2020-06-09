@@ -80,13 +80,23 @@ def __next_higher_degree_vertex(G, V):
     return higher_degree_v
 
 def __update_degree_saturation(G, V):
+    '''
+    Let G be a simple graph and C a partial
+    coloration of G vertices. We define the saturation degree
+    of a vertex as the number of different colors to which it
+    is adjacent (colored vertices).
+    '''
+
     n = len(V)
 
     for v in V:
+        colors = set()
         for i in range(n):
             if G[v[VERTEX]][i] == CONNECTED and v[VERTEX] != i:
                 if V[i][DS_CLR] != UNCOLERED:
-                    v[DG_SAT] += 1
+                    #no repited colors are added
+                    colors.add(V[i][DS_CLR])
+        v[DG_SAT] = len(colors)
 
 def __init_vertices(G, V, n):
     for i in range(n):
