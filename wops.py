@@ -1,8 +1,10 @@
+import sys
 import heur as hr
 import lwbd as lb
 import time as tm
 import print as pr
 import numpy as np
+import writer as wt
 
 # AI -> Attires info [attire_ID | washingtime | ds_clr | washed | incomp]
 # IC -> Incompatibilities [attire_ID_1 | attire_ID_2]
@@ -10,8 +12,12 @@ import numpy as np
 # NA -> Number of attires
 
 #-----------------------CONSTANTS---------------------------#
-INPUT_FILE = 'problems/segundo_problema.txt'
+INPUT_FILE = 'problems/primer_problema.txt'
 OUTPUT_FILE = 'output.txt'
+CPLEX_MOD_FILE = 'model_1.mod'
+
+NORML_MODE = "--norml"
+CPLEX_MODE = "--cplex"
 #-----------------------------------------------------------#
 
 #------------------AUXILIARY-FUNCTIONS----------------------#
@@ -101,10 +107,14 @@ def find_lower_bound(data, incs):
     exec_time = tm.time() - start_time
     return lower_bound, exec_time
 
-def optimize_washing_time():
+def optimize_washing_time(mode):
     data = parse_data(INPUT_FILE)
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
+
+    if mode == CPLEX_MODE:
+        wt.write_cplex_mod(data, incs, CPLEX_MOD_FILE)
+        return
 
     washings, sl_time = find_solution_greedy(data, incs)
     lower_bound, lw_time = find_lower_bound(data, incs)
@@ -114,4 +124,5 @@ def optimize_washing_time():
     pr.print_output_file(OUTPUT_FILE, washings)
 #-----------------------------------------------------------#
 
-optimize_washing_time()
+mode = sys.argv[1] if len(sys.argv) == 2 else mode == NORML_MODE
+optimize_washing_time(sys.argv[1])
