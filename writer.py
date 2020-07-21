@@ -1,3 +1,6 @@
+import time as tm
+import print as pr
+
 # TIPES OF VARIABLES:
 # wtm_w -> this variable counts the washing time of the washing w
 # n_a_w -> the attire a goes in the washing w [binary 0,1]
@@ -89,7 +92,6 @@ def __write_incs_constraits(data, incs, output):
 
         output.write("\n")
 
-
 def __gen_unq_constrait_name(a):
     return "unq_" + str(a)
 
@@ -118,7 +120,6 @@ def __write_unqs_constraits(data, output):
         output.write("\t" + ctrname + ": " + ctr)
 
     output.write("\n")
-
 
 def __gen_time_constrait(w, a, data):
     w_time = data["AI"][a - 1][W_TIME]
@@ -189,10 +190,15 @@ def _write_constrait(data, incs, output):
 
 #--------------------------WRITES---------------------------#
 def write_cplex_mod(data, incs, filename):
+    start_time = tm.time()
     with open(filename, "w") as output:
         output.write("using CPLEX;\n")
 
         _write_variables(data, output)
         _write_objective(data, output)
         _write_constrait(data, incs, output)
+    exec_time = tm.time() - start_time
+
+    pr.print_cplex_model_completed(filename, exec_time)
+
 #-----------------------------------------------------------#

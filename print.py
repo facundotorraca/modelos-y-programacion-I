@@ -66,4 +66,8 @@ def print_output_file(filename, washings):
                 output_file.write(str(attire[ATT_ID]) + ' ' + w_id + '\n')
 
     print(f'{OKGREEN}\nSolution saved successfully{ENDC}')
+
+def print_cplex_model_completed(filename, exec_time):
+    print(f'{OKGREEN}\nCPLEX model generated succesfully in:{ENDC}', filename)
+    print('CPLEX MODEL GEN TIME: ' +  str(exec_time*1000) + "\n")
 #-----------------------------------------------------------#
