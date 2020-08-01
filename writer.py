@@ -188,7 +188,7 @@ def _write_constrait(data, incs, output):
     output.write(GEN_DIVISOR + "\n")
 #-----------------------------------------------------------#
 
-#--------------------------WRITES---------------------------#
+#--------------------------WRITER---------------------------#
 def write_cplex_mod(data, incs, filename):
     start_time = tm.time()
     with open(filename, "w") as output:
@@ -200,5 +200,4 @@ def write_cplex_mod(data, incs, filename):
     exec_time = tm.time() - start_time
 
     pr.print_cplex_model_completed(filename, exec_time)
-
 #-----------------------------------------------------------#

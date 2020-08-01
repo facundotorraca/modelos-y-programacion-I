@@ -12,12 +12,13 @@ import writer as wt
 # NA -> Number of attires
 
 #-----------------------CONSTANTS---------------------------#
-INPUT_FILE = 'problems/primer_problema.txt'
+INPUT_FILE = 'problems/tercer_problema.txt'
 OUTPUT_FILE = 'output.txt'
 CPLEX_MOD_FILE = 'model_1.mod'
 
 NORML_MODE = "--norml"
 CPLEX_MODE = "--cplex"
+TWICE_MODE = "--twice"
 #-----------------------------------------------------------#
 
 #------------------AUXILIARY-FUNCTIONS----------------------#
@@ -112,8 +113,10 @@ def optimize_washing_time(mode):
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
 
-    if mode == CPLEX_MODE:
+    if mode == CPLEX_MODE or mode == TWICE_MODE:
         wt.write_cplex_mod(data, incs, CPLEX_MOD_FILE)
+
+    if mode != NORML_MODE && mode != TWICE_MODE:
         return
 
     washings, sl_time = find_solution_greedy(data, incs)
