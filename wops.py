@@ -14,7 +14,7 @@ import writer as wt
 #-----------------------CONSTANTS---------------------------#
 INPUT_FILE = 'problems/tercer_problema.txt'
 OUTPUT_FILE = 'output.txt'
-CPLEX_MOD_FILE = 'model_1.mod'
+CPLEX_MOD_FILE = 'model_3.mod'
 
 NORML_MODE = "--norml"
 CPLEX_MODE = "--cplex"
@@ -98,7 +98,7 @@ def calculate_incomps(data, incs):
 #--------------------------WOPS-----------------------------#
 def find_solution_greedy(data, incs):
     start_time = tm.time()
-    washings = hr.dsatur_method(data, incs)
+    washings = hr.next_slower_method(data, incs)
     exec_time = tm.time() - start_time
     return washings, exec_time
 
@@ -116,7 +116,7 @@ def optimize_washing_time(mode):
     if mode == CPLEX_MODE or mode == TWICE_MODE:
         wt.write_cplex_mod(data, incs, CPLEX_MOD_FILE)
 
-    if mode != NORML_MODE && mode != TWICE_MODE:
+    if mode != NORML_MODE and mode != TWICE_MODE:
         return
 
     washings, sl_time = find_solution_greedy(data, incs)
