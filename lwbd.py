@@ -86,10 +86,16 @@ def fast_mwcp_method(attires, incs):
 
     lower_bound = 0
 
+    # all the attires that compund a clique
+    # finded by the method fast_w_clq.
+    clique = []
+
     for v in C:
         lower_bound += v[mwcp.WEIGHT]
+        clique.append(v[mwcp.VERTEX])
 
-    return lower_bound
+
+    return lower_bound, clique
 
 def append_slowers_method(attires, incs):
     for attire in attires:
@@ -106,10 +112,16 @@ def append_slowers_method(attires, incs):
             selection.append(att)
             lower_bound += att[W_TIME]
 
+    # all the attires that compound a clique
+    # finded by the method fast_w_clq.
+    clique = []
+    for attire in selection:
+        clique.append(attire[ATT_ID])
+
     for attire in attires:
         attire[VSITED] = False
 
-    return lower_bound
+    return lower_bound, clique
 
 def append_more_conflictive_method(attires, incs):
     for attire in attires:
@@ -126,8 +138,14 @@ def append_more_conflictive_method(attires, incs):
             selection.append(att)
             lower_bound += att[W_TIME]
 
+    # all the attires that compound a clique
+    # finded by the method fast_w_clq.
+    clique = []
+    for attire in selection:
+        clique.append(attire[ATT_ID])
+
     for attire in attires:
         attire[VSITED] = False
 
-    return lower_bound
+    return lower_bound, clique
 #-----------------------------------------------------------#

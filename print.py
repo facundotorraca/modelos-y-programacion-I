@@ -40,9 +40,9 @@ def print_washings(washings, exec_time):
     print(f"{HEADER}{BOLD}#-----------------SOLUTION-EXECUTION-TIME---------------------#{ENDC}")
     print('SOLUTION EXECUTION TIME: ' +  str(exec_time*1000))
     print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
-    print("\n")
 
 def print_lower_bounds(lower_bound, exec_time):
+    print("\n")
     print(f"{HEADER}{BOLD}#-------------------------LOWER-BOUND-------------------------#{ENDC}")
     print("LOWER BOUND:" + str(lower_bound))
     print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
@@ -51,9 +51,8 @@ def print_lower_bounds(lower_bound, exec_time):
     print(f"{HEADER}{BOLD}#----------------LOWER-BOUND-EXECUTION-TIME-------------------#{ENDC}")
     print('LOWER BOUND EXECUTION TIME: ' +  str(exec_time*1000))
     print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
-    print("\n")
 
-def print_output_file(filename, washings):
+def print_solution_file(filename, washings):
     '''
     Cada renglón tiene dos valores separados por un espacio, el primero
     es el número de prenda, el según el número de lavado asignado.
@@ -65,9 +64,31 @@ def print_output_file(filename, washings):
             for attire in washings[i]:
                 output_file.write(str(attire[ATT_ID]) + ' ' + w_id + '\n')
 
-    print(f'{OKGREEN}\nSolution saved successfully{ENDC}')
+    print(f'{OKGREEN}Solution saved successfully{ENDC}')
 
 def print_cplex_model_completed(filename, exec_time):
     print(f'{OKGREEN}\nCPLEX model generated succesfully in:{ENDC}', filename)
     print('CPLEX MODEL GEN TIME: ' +  str(exec_time*1000) + "\n")
+
+def print_cliques_to_file(filename, minK, maxK, cliques, exec_time):
+    print("\n")
+    print(f"{HEADER}{BOLD}#-----------------------CLIQUES-FOUND------------------------#{ENDC}")
+    print('Found: ' + str(len(cliques)) + ' between size ' + str(minK) + ' and ' + str(maxK))
+    print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
+
+    print("\n")
+    print(f"{HEADER}{BOLD}#---------------CLIQUES-SEARCH-EXECUTION-TIME-----------------#{ENDC}")
+    print('CLIQUES SEARCH EXECUTION TIME: ' +  str(exec_time*1000))
+    print(f"{HEADER}{BOLD}#-------------------------------------------------------------#{ENDC}")
+
+    with open(filename, 'w') as output_file:
+        for C in cliques:
+            for i in range(len(C)):
+                output_file.write(str(C[i]))
+                if i != len(C) - 1:
+                    output_file.write(' ')
+                else:
+                    output_file.write('\n')
+
+    print(f'{OKGREEN}Cliques saved successfully{ENDC}\n')
 #-----------------------------------------------------------#

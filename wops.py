@@ -5,6 +5,7 @@ import time as tm
 import print as pr
 import numpy as np
 import writer as wt
+import clique as clq
 
 # AI -> Attires info [attire_ID | washingtime | ds_clr | washed | incomp]
 # IC -> Incompatibilities [attire_ID_1 | attire_ID_2]
@@ -13,8 +14,9 @@ import writer as wt
 
 #-----------------------CONSTANTS---------------------------#
 INPUT_FILE = 'problems/tercer_problema.txt'
-OUTPUT_FILE = 'output.txt'
-CPLEX_MOD_FILE = 'model_3.mod'
+CLIQUES_FILE = 'clq_3.txt'
+SOLUTION_FILE = 'sol_3.txt'
+CPLEX_MOD_FILE = 'mdl_3.mod'
 
 NORML_MODE = "--norml"
 CPLEX_MODE = "--cplex"
@@ -104,11 +106,17 @@ def find_solution_greedy(data, incs):
 
 def find_lower_bound(data, incs):
     start_time = tm.time()
-    lower_bound = lb.fast_mwcp_method(data['AI'], incs)
+    lower_bound, lw_clique = lb.fast_mwcp_method(data['AI'], incs)
     exec_time = tm.time() - start_time
-    return lower_bound, exec_time
+    return lower_bound, lw_clique, exec_time
 
-def optimize_washing_time(mode):
+def find_range_cliques(data, incs, minK, maxK):
+    start_time = tm.time()
+    cliques = clq.find_cliques(incs, data['AI'], minK, maxK)
+    exec_time = tm.time() - start_time
+    return cliques, exec_time
+
+def optimize_washing_time(mode, minClq, maxClq):
     data = parse_data(INPUT_FILE)
     incs = load_incs_matrix(data)
     calculate_incomps(data, incs)
@@ -119,13 +127,34 @@ def optimize_washing_time(mode):
     if mode != NORML_MODE and mode != TWICE_MODE:
         return
 
+    # avoid search trivial cliques of two vertices
+    minClq = 3 if minClq == None else minClq
+
+    # maxK is default 10 percent of the size of the graph
+    maxClq = int(0.1 * data['NA']) if maxClq == None else maxClq
+
     washings, sl_time = find_solution_greedy(data, incs)
-    lower_bound, lw_time = find_lower_bound(data, incs)
+    lower_bound, lw_clique, lw_time = find_lower_bound(data, incs)
+    cliques, clq_time = find_range_cliques(data, incs, minClq, maxClq)
 
     pr.print_washings(washings, sl_time)
+    pr.print_solution_file(SOLUTION_FILE, washings)
     pr.print_lower_bounds(lower_bound, lw_time)
-    pr.print_output_file(OUTPUT_FILE, washings)
+    pr.print_cliques_to_file(CLIQUES_FILE, minClq, maxClq, cliques, clq_time)
 #-----------------------------------------------------------#
 
-mode = sys.argv[1] if len(sys.argv) == 2 else mode == NORML_MODE
-optimize_washing_time(sys.argv[1])
+if  __name__ == "__main__" :
+    mode = NORML_MODE
+    minClq = None
+    maxClq = None
+
+    if len(sys.argv) >= 2:
+        mode = sys.argv[1]
+
+    if len(sys.argv) >= 3:
+        minClq = int(sys.argv[2])
+
+    if len(sys.argv) >= 4:
+        maxClq = int(sys.argv[3])
+
+    optimize_washing_time(mode, minClq, maxClq)
