@@ -1,4 +1,4 @@
-# modelos-y-programacion-I
+# Modelos y Programacion I
 
 Trabajo integrador para la materia de Modelos y Programacion I - FIUBA.
 
